@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ course.name }} / StudyOn{% endblock %}
+
+{% block body %}
+<h1>{{ course.name }}</h1>
+<p>{{ course.description }}</p>
+
+<h2>Lessons</h2>
+<ul>
+    {% for lesson in course.lessons %}
+        <li>
+            <a href="{{ path('lesson_show', {'id': lesson.id}) }}">{{ lesson.name }}</a>
+        </li>
+    {% else %}
+        <li>No lessons found</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ path('course_index') }}">Back to list</a>
+<a href="{{ path('course_edit', {'id': course.id}) }}">Edit</a>
+<form method="post" action="{{ path('course_delete', {'id': course.id}) }}" onsubmit="return confirm('Are you sure?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
+    <button class="btn">Delete</button>
+</form>
+<a href="{{ path('lesson_new', {'course_id': course.id}) }}">Add lesson</a>
+{% endblock %}
