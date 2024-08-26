@@ -1,11 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Lesson{% endblock %}
+{% block title %}Новый урок / StudyOn{% endblock %}
 
 {% block body %}
-    <h1>Create new Lesson</h1>
+    <h1>Создать новый урок</h1>
 
-    {{ include('lesson/_form.html.twig') }}
+    {{ form_start(form) }}
+    <div>
+        {{ form_row(form.name, {'label': 'Name'}) }}
+    </div>
+    <div>
+        {{ form_row(form.content, {'label': 'content'}) }}
+    </div>
+    <div>
+        {{ form_row(form.position, {'label': 'Ordering'}) }}
+    </div>
+    <button type="submit">Сохранить</button>
+    {{ form_end(form) }}
 
-    <a href="{{ path('lesson_index') }}">back to list</a>
 {% endblock %}

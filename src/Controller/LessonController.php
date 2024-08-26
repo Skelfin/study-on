@@ -14,18 +14,6 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/lessons')]
 class LessonController extends AbstractController
 {
-    #[Route('/', name: 'lesson_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
-    {
-        $lessons = $entityManager
-            ->getRepository(Lesson::class)
-            ->findAll();
-
-        return $this->render('lesson/index.html.twig', [
-            'lessons' => $lessons,
-        ]);
-    }
-
     #[Route('/new', name: 'lesson_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -72,7 +60,7 @@ class LessonController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('lesson_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('lesson_show', ['id' => $lesson->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('lesson/edit.html.twig', [

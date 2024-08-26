@@ -9,8 +9,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class LessonType extends AbstractType
 {
@@ -25,7 +25,9 @@ class LessonType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('content')
+            ->add('content', TextareaType::class, [
+                'attr' => ['rows' => 5, 'cols' => 60]
+            ])
             ->add('position')
             ->add('course', HiddenType::class)
         ;

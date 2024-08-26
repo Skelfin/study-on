@@ -29,11 +29,19 @@ class CourseController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $course = new Course();
+
+        // Устанавливаем временное значение для code, чтобы пройти валидацию
+        $course->setCode('temp_value');
+
         $form = $this->createForm(CourseType::class, $course);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($course);
+            $entityManager->flush();
+
+            // Теперь, после того как курс сохранен и у него есть ID, обновляем code
+            $course->setCode('course_' . $course->getId());
             $entityManager->flush();
 
             return $this->redirectToRoute('course_index', [], Response::HTTP_SEE_OTHER);
@@ -44,6 +52,8 @@ class CourseController extends AbstractController
             'form' => $form,
         ]);
     }
+
+
 
     #[Route('/{id}', name: 'course_show', methods: ['GET'])]
     public function show(Course $course): Response
@@ -62,7 +72,7 @@ class CourseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('course_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('course_show', ['id' => $course->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('course/edit.html.twig', [

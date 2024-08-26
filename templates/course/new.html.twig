@@ -1,11 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Course{% endblock %}
+{% block title %}Создание курса{% endblock %}
 
 {% block body %}
-    <h1>Create new Course</h1>
+    <h1>Создание курса</h1>
 
-    {{ include('course/_form.html.twig') }}
+    {{ form_start(form) }}
+        <div>
+            {{ form_row(form.name, {'label': 'Название'}) }}
+        </div>
+        <div>
+            {{ form_row(form.description, {'label': 'Описание'}) }}
+        </div>
+        <button type="submit">Сохранить</button>
+    {{ form_end(form) }}
 
-    <a href="{{ path('course_index') }}">back to list</a>
+    <a href="{{ path('course_index') }}">К списку курсов</a>
 {% endblock %}
