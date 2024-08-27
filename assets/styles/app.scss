@@ -1,0 +1,9 @@
+@import "~bootstrap/scss/bootstrap";
+
+.link-hover {
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

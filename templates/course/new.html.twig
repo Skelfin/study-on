@@ -3,17 +3,12 @@
 {% block title %}Создание курса{% endblock %}
 
 {% block body %}
-    <h1>Создание курса</h1>
+<div class="container mt-2">
+    <h1 class="mb-3">Новый курс</h1>
+    {% include 'course/_form.html.twig' %}
 
-    {{ form_start(form) }}
-        <div>
-            {{ form_row(form.name, {'label': 'Название'}) }}
-        </div>
-        <div>
-            {{ form_row(form.description, {'label': 'Описание'}) }}
-        </div>
-        <button type="submit">Сохранить</button>
-    {{ form_end(form) }}
+    <hr>
 
-    <a href="{{ path('course_index') }}">К списку курсов</a>
+    <a href="{{ path('course_index') }}" class="btn btn-outline-secondary">К списку курсов</a>
+</div>
 {% endblock %}

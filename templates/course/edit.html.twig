@@ -3,17 +3,13 @@
 {% block title %}Редактировать {{ course.name }} / StudyOn{% endblock %}
 
 {% block body %}
-    <h1>{{ course.name }}</h1>
+<div class="container mt-2">
+    <h1 class="mb-3">{{ course.name }}</h1>
 
-    {{ form_start(form) }}
-        <div>
-            {{ form_row(form.name, {'label': 'Name'}) }}
-        </div>
-        <div>
-            {{ form_row(form.description, {'label': 'Description'}) }}
-        </div>
-        <button type="submit">Сохранить</button>
-    {{ form_end(form) }}
+    {% include 'course/_form.html.twig' %}
+
+    <hr>
 
     {{ include('course/_delete_form.html.twig') }}
+</div>
 {% endblock %}

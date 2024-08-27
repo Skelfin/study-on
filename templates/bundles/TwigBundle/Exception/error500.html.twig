@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Внутренняя ошибка сервера (500){% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-center">
+    <h1 class="display-1">500</h1>
+    <p class="lead">Что-то пошло не так. Мы работаем над исправлением этой ошибки.</p>
+    <a href="{{ path('homepage') }}" class="btn btn-primary">Вернуться на главную</a>
+</div>
+{% endblock %}

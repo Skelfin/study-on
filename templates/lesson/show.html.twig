@@ -3,10 +3,17 @@
 {% block title %}{{ lesson.name }} / {{ lesson.course.name }} / StudyOn{% endblock %}
 
 {% block body %}
-<h1>{{ lesson.name }}</h1>
-<p>Курс: <a href="{{ path('course_show', {'id': lesson.course.id}) }}">{{ lesson.course.name }}</a></p>
-<p>{% autoescape 'html' %}{{ lesson.content|raw }}{% endautoescape %}</p>
+<div class="container mt-2">
+    <h1 class="mb-3">{{ lesson.name }}</h1>
+    <p>Курс: <a href="{{ path('course_show', {'id': lesson.course.id}) }}" class="link-hover">{{ lesson.course.name }}</a></p>
 
-<a href="{{ path('lesson_edit', {'id': lesson.id}) }}">Редактировать урок</a>
-{{ include('lesson/_delete_form.html.twig') }}
+    <div class="d-flex mb-3">
+        <a href="{{ path('lesson_edit', {'id': lesson.id}) }}" class="btn btn-outline-secondary me-2">Редактировать</a>
+        {{ include('lesson/_delete_form.html.twig', { 'class': 'btn btn-outline-danger' }) }}
+    </div>
+
+    <div class="card p-3">
+        <span>{% autoescape 'html' %}{{ lesson.content }}{% endautoescape %}</span>
+    </div>
+</div>
 {% endblock %}

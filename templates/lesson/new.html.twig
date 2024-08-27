@@ -3,19 +3,11 @@
 {% block title %}Новый урок / StudyOn{% endblock %}
 
 {% block body %}
-    <h1>Создать новый урок</h1>
+<div class="container mt-2">
+    <h1 class="mb-3">Новый урок</h1>
+    <p>Курс: <a href="{{ path('course_show', {'id': form.vars.value.course.id}) }}" class="link-hover">{{ form.vars.value.course.name }}</a></p>
 
-    {{ form_start(form) }}
-    <div>
-        {{ form_row(form.name, {'label': 'Name'}) }}
-    </div>
-    <div>
-        {{ form_row(form.content, {'label': 'content'}) }}
-    </div>
-    <div>
-        {{ form_row(form.position, {'label': 'Ordering'}) }}
-    </div>
-    <button type="submit">Сохранить</button>
-    {{ form_end(form) }}
+    {% include 'lesson/_form.html.twig' %}
 
+</div>
 {% endblock %}

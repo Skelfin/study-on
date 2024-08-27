@@ -25,9 +25,7 @@ class LessonType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('content', TextareaType::class, [
-                'attr' => ['rows' => 5, 'cols' => 60]
-            ])
+            ->add('content')
             ->add('position')
             ->add('course', HiddenType::class)
         ;

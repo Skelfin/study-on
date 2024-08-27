@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Доступ запрещен (403){% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-center">
+    <h1 class="display-1">403</h1>
+    <p class="lead">У вас нет доступа к этой странице.</p>
+    <a href="{{ path('homepage') }}" class="btn btn-primary">Вернуться на главную</a>
+</div>
+{% endblock %}

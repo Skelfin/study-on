@@ -1,0 +1,24 @@
+{{ form_start(form) }}
+    <div class="mb-3">
+        {{ form_row(form.name, {
+            'label': 'Название', 
+            'attr': {'class': 'form-control'}, 
+            'label_attr': {'class': 'fw-semibold mb-1'}
+        }) }}
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.content, {
+            'label': 'Содержание', 
+            'attr': {'class': 'form-control'}, 
+            'label_attr': {'class': 'fw-semibold mb-1'}
+        }) }}
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.position, {
+            'label': 'Порядок', 
+            'attr': {'class': 'form-control'}, 
+            'label_attr': {'class': 'fw-semibold mb-1'}
+        }) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+{{ form_end(form) }}
