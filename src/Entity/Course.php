@@ -21,7 +21,7 @@ class Course
     private ?string $code = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Название не должно быть пустым.")]
     #[Assert\Length(max: 255)]
     private ?string $name = null;
 

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 class Lesson
@@ -17,9 +18,11 @@ class Lesson
     private ?Course $course = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Название не должно быть пустым.")]
     private ?string $name = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: "Содержимое не должно быть пустым.")]
     private ?string $content = null;
 
     #[ORM\Column(type: 'integer', options: ["unsigned" => true, "check" => "position >= 1 AND position <= 10000"])]

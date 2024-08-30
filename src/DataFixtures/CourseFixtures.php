@@ -54,7 +54,7 @@ class CourseFixtures extends Fixture
                 $lesson = new Lesson();
                 $lesson->setName($lessonData['name']);
                 $lesson->setContent($lessonData['content']);
-                $lesson->setPosition($lessonData['order']); // Переименовано с 'order' на 'position'
+                $lesson->setPosition($lessonData['order']);
                 $lesson->setCourse($course);
 
                 $manager->persist($lesson);
