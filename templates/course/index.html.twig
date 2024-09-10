@@ -24,6 +24,8 @@
 
     <hr>
 
-    <a href="{{ path('course_new') }}" class="btn btn-outline-secondary">Добавить новый курс</a>
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+        <a href="{{ path('course_new') }}" class="btn btn-outline-secondary">Добавить новый курс</a>
+    {% endif %}
 </div>
 {% endblock %}

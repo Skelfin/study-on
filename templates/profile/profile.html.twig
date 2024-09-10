@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block body %}
+    <h1>Профиль пользователя</h1>
+
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Роль:</strong> 
+        {% if 'ROLE_SUPER_ADMIN' in roles %}
+            Администратор
+        {% else %}
+            Пользователь
+        {% endif %}
+    </p>
+    <p><strong>Баланс:</strong> {{ balance }} RUB</p>
+{% endblock %}

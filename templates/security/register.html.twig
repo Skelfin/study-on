@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Регистрация</h1>
+
+    {% for flashError in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ flashError }}
+        </div>
+    {% endfor %}
+
+    {{ form_start(registrationForm) }}
+        <div class="mb-3">
+            {{ form_label(registrationForm.email) }}
+            {{ form_widget(registrationForm.email) }}
+            {{ form_errors(registrationForm.email) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(registrationForm.password.first) }}
+            {{ form_widget(registrationForm.password.first) }}
+            {{ form_errors(registrationForm.password.first) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(registrationForm.password.second) }}
+            {{ form_widget(registrationForm.password.second) }}
+            {{ form_errors(registrationForm.password.second) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    {{ form_end(registrationForm) }}
+</div>
+{% endblock %}

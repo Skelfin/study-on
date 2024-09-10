@@ -16,6 +16,27 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
                 <a class="navbar-brand fw-semibold" href="{{ path('course_index') }}">StudyOn</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        {% if is_granted('ROLE_USER') %}
+                            <!-- Для авторизованных пользователей -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('profile') }}">Профиль</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_logout') }}">Выйти</a>
+                            </li>
+                        {% else %}
+                            <!-- Для неавторизованных пользователей -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_login') }}">Войти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_register') }}">Регистрация</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
         </nav>
         {% block body %}{% endblock %}

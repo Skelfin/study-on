@@ -1,17 +1,18 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
-  test: true #убрать если не исп. тесты
+  # test: true убрать если не исп. тесты
   secret: "%env(APP_SECRET)%"
-  csrf_protection: true #убрать если не исп. тесты
+  # csrf_protection: true убрать если не исп. тесты
 
   # Note that the session will be started ONLY if you read or write from it.
-  session: #поставить true и нижнюю запись убрать
-    storage_factory_id: session.storage.factory.mock_file
+  session: true
+  #поставить true и нижнюю запись убрать
+  # storage_factory_id: session.storage.factory.mock_file
 
 when@test:
   framework:
     test: true
-    cache: #убрать если не исп. тесты
-      directory: "%kernel.cache_dir%/test"
+    # cache: #убрать если не исп. тесты
+    #   directory: "%kernel.cache_dir%/test"
     session:
       storage_factory_id: session.storage.factory.mock_file
