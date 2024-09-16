@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
@@ -28,8 +29,7 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
     public function loadUserByIdentifier($identifier): UserInterface
     {
         try {
-            // Аутентифицируем пользователя и получаем данные
-            $userData = $this->billingClient->authenticate($identifier, 'password_placeholder'); // Пароль должен передаваться в запросе
+            $userData = $this->billingClient->authenticate($identifier, 'password_placeholder');
         } catch (BillingUnavailableException $e) {
             throw new UserNotFoundException('Сервис биллинга временно недоступен.');
         }
@@ -38,7 +38,6 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
             throw new UserNotFoundException(sprintf('Пользователь с email "%s" не найден.', $identifier));
         }
 
-        // Создаем объект User и заполняем его данными.
         $user = new User();
         $user->setEmail($userData['email']);
         $user->setRoles($userData['roles']);
@@ -64,10 +63,39 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
             throw new UnsupportedUserException(sprintf('Неподдерживаемый класс пользователя "%s".', get_class($user)));
         }
 
-        // Здесь вы можете добавить логику для обновления данных пользователя
-        // Например, можно обновить роли или токен, если это необходимо.
+        $token = $user->getApiToken();
 
-        return $user; // Если нет изменений, возвращаем пользователя без модификаций
+        if ($this->isTokenExpired($token)) {
+            $refreshToken = $user->getRefreshToken();
+            if ($refreshToken) {
+                try {
+                    $newTokenData = $this->billingClient->refreshToken($refreshToken);
+                    $user->setApiToken($newTokenData['token']);
+                    $user->setRefreshToken($newTokenData['refresh_token']);
+                } catch (\Exception $e) {
+                    // Если не удалось обновить токен, выбрасываем исключение
+                    throw new AuthenticationException('Сессия истекла, пожалуйста, войдите снова.');
+                }
+            } else {
+                throw new AuthenticationException('Сессия истекла, пожалуйста, войдите снова.');
+            }
+        }
+
+        return $user;
+    }
+
+    private function isTokenExpired(string $token): bool
+    {
+        $payload = explode('.', $token)[1];
+        $decoded = json_decode(base64_decode($payload), true);
+
+        if (isset($decoded['exp'])) {
+            $expTime = (int) $decoded['exp'];
+            return $expTime < time();
+        }
+
+        // Если нет поля exp, считаем, что токен истек
+        return true;
     }
 
     /**

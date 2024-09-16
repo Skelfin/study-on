@@ -18,6 +18,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private float $balance = 0.0;
 
+    private string $refreshToken; // Добавлено свойство refreshToken
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -48,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // гарантируем, что каждый пользователь имеет хотя бы роль ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -69,12 +71,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
+        // Если вы храните какие-либо временные, чувствительные данные на пользователе, очистите их здесь
         // $this->plainPassword = null;
     }
 
     /**
-     * Get the API token (JWT) of the user.
+     * Получить API токен (JWT) пользователя.
      */
     public function getApiToken(): ?string
     {
@@ -82,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * Set the API token (JWT) for the user.
+     * Установить API токен (JWT) для пользователя.
      */
     public function setApiToken(string $apiToken): static
     {
@@ -110,6 +112,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBalance(float $balance): static
     {
         $this->balance = round($balance, 2); // Округляем баланс
+        return $this;
+    }
+
+    // Добавляем методы для работы с refreshToken
+
+    /**
+     * Получить refresh token пользователя.
+     */
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * Установить refresh token пользователя.
+     */
+    public function setRefreshToken(string $refreshToken): static
+    {
+        $this->refreshToken = $refreshToken;
         return $this;
     }
 }

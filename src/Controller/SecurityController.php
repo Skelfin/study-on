@@ -10,8 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
@@ -30,19 +30,16 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('profile');
         }
 
-        // get the login error if there is one
+        // получить ошибку входа, если она есть
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
+        // последний введенный пользователем email
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
-    public function logout(): void
-    {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
+    public function logout(): void {}
 
     #[Route(path: '/register', name: 'app_register')]
     public function register(
@@ -68,7 +65,14 @@ class SecurityController extends AbstractController
                 $user = new User();
                 $user->setEmail($data['email']);
                 $user->setRoles(['ROLE_USER']); // Назначаем роль пользователя
-                $user->setApiToken($responseData['token']); // Сохраняем токен, если нужно
+                $user->setApiToken($responseData['token']); // Сохраняем токен
+
+                if (isset($responseData['refresh_token'])) {
+                    $user->setRefreshToken($responseData['refresh_token']);
+                } else {
+                    $this->addFlash('error', 'Не получен refresh token от сервиса биллинга.');
+                    return $this->redirectToRoute('app_register');
+                }
 
                 // Авторизуем пользователя
                 $authenticator->authenticateUser(

@@ -37,33 +37,40 @@ class BillingAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
+        $email = $request->request->get('email', '');
+        $password = $request->request->get('password', '');
 
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         try {
             // Отправляем запрос на авторизацию в сервис биллинга через BillingClient
             $authResponse = $this->billingClient->authenticate($email, $password);
+
+            // Декодируем JWT-токен и извлекаем данные
+            $jwtPayload = json_decode(base64_decode(explode('.', $authResponse['token'])[1]), true);
+
+            // Проверяем наличие необходимых данных в токене
+            if (!isset($jwtPayload['roles'], $jwtPayload['username'])) {
+                throw new CustomUserMessageAuthenticationException('Неверный формат токена.');
+            }
+
+            // Создаем пользователя и сохраняем его роли и токен
+            $user = new User();
+            $user->setEmail($jwtPayload['username']);
+            $user->setRoles($jwtPayload['roles']);
+            $user->setApiToken($authResponse['token']);
+
+            // Сохраняем refresh_token
+            if (isset($authResponse['refresh_token'])) {
+                $user->setRefreshToken($authResponse['refresh_token']);
+            } else {
+                throw new CustomUserMessageAuthenticationException('Refresh token отсутствует в ответе сервиса биллинга.');
+            }
         } catch (BillingUnavailableException $e) {
             throw new CustomUserMessageAuthenticationException('Сервис временно недоступен. Попробуйте позже.');
         } catch (\Exception $e) {
             throw new CustomUserMessageAuthenticationException('Неверные учетные данные.');
         }
-
-        // Декодируем JWT-токен и извлекаем данные
-        $jwtPayload = json_decode(base64_decode(explode('.', $authResponse['token'])[1]), true);
-
-        // Проверяем наличие необходимых данных в токене
-        if (!isset($jwtPayload['roles'], $jwtPayload['username'])) {
-            throw new CustomUserMessageAuthenticationException('Неверный формат токена.');
-        }
-
-        // Создаем пользователя и сохраняем его роли и токен
-        $user = new User();
-        $user->setEmail($jwtPayload['username']); // Email из токена
-        $user->setRoles($jwtPayload['roles']); // Роли из токена
-        $user->setApiToken($authResponse['token']); // JWT токен
 
         return new SelfValidatingPassport(
             new UserBadge($email, function () use ($user) {

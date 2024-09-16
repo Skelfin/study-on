@@ -35,8 +35,9 @@ class ProfileController extends AbstractController
             // Обновляем баланс пользователя
             $user->setBalance($userData['balance']);
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Ошибка при получении данных профиля: ' . $e->getMessage());
-            return $this->redirectToRoute('app_login');
+            return $this->render('error500.html.twig', [
+                'message' => 'Не удалось получить данные профиля. Пожалуйста, попробуйте позже.',
+            ]);
         }
 
         // Рендерим шаблон профиля и передаем данные в него
