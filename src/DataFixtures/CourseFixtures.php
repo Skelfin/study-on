@@ -13,9 +13,11 @@ class CourseFixtures extends Fixture
     {
         $coursesData = [
             [
-                'code' => 'symfony_basics',
+                'code' => '1course',
                 'name' => 'Symfony Basics',
                 'description' => 'Описание для 1 кода',
+                'type' => Course::TYPE_RENT,
+                'price' => 99.9,
                 'lessons' => [
                     ['name' => 'Introduction to Symfony', 'content' => 'Learning the basics of Symfony.', 'order' => 1],
                     ['name' => 'Routing and Controllers', 'content' => 'Understanding routing and controllers.', 'order' => 2],
@@ -23,9 +25,11 @@ class CourseFixtures extends Fixture
                 ],
             ],
             [
-                'code' => 'php_advanced',
-                'name' => 'Advanced PHP',
+                'code' => '2course',
+                'name' => 'Php Advanced',
                 'description' => 'Описание для 2 кода',
+                'type' => Course::TYPE_FREE,
+                'price' => 0,
                 'lessons' => [
                     ['name' => 'Namespaces and Autoloading', 'content' => 'How namespaces and autoloading work in PHP.', 'order' => 1],
                     ['name' => 'OOP Concepts', 'content' => 'Advanced object-oriented programming concepts.', 'order' => 2],
@@ -33,9 +37,11 @@ class CourseFixtures extends Fixture
                 ],
             ],
             [
-                'code' => 'doctrine_essentials',
+                'code' => '3course',
                 'name' => 'Doctrine Essentials',
                 'description' => 'Описание для 3 кода',
+                'type' => Course::TYPE_BUY,
+                'price' => 159,
                 'lessons' => [
                     ['name' => 'Doctrine Setup', 'content' => 'Setting up Doctrine ORM in your project.', 'order' => 1],
                     ['name' => 'Entity Mapping', 'content' => 'How to map entities and relationships.', 'order' => 2],
@@ -49,12 +55,14 @@ class CourseFixtures extends Fixture
             $course->setCode($courseData['code']);
             $course->setName($courseData['name']);
             $course->setDescription($courseData['description']);
+            $course->setType($courseData['type']);
+            $course->setPrice($courseData['price']);
 
             foreach ($courseData['lessons'] as $lessonData) {
                 $lesson = new Lesson();
                 $lesson->setName($lessonData['name']);
                 $lesson->setContent($lessonData['content']);
-                $lesson->setPosition($lessonData['order']);
+                $lesson->setLessonOrder($lessonData['order']);
                 $lesson->setCourse($course);
 
                 $manager->persist($lesson);

@@ -23,16 +23,13 @@ class ProfileController extends AbstractController
         /** @var \App\Security\User $user */
         $user = $this->getUser();
 
-        // Проверяем наличие токена
         if (!$user || !$user->getApiToken()) {
             throw new AuthenticationException('Пользователь не авторизован.');
         }
 
         try {
-            // Получаем данные пользователя из биллинга
             $userData = $this->billingClient->getCurrentUser($user->getApiToken());
 
-            // Обновляем баланс пользователя
             $user->setBalance($userData['balance']);
         } catch (\Exception $e) {
             return $this->render('error500.html.twig', [
@@ -40,11 +37,33 @@ class ProfileController extends AbstractController
             ]);
         }
 
-        // Рендерим шаблон профиля и передаем данные в него
         return $this->render('profile/profile.html.twig', [
             'email' => $userData['username'],
             'roles' => $userData['roles'],
             'balance' => $userData['balance'],
+        ]);
+    }
+
+    #[Route('/profile/transactions', name: 'profile_transactions')]
+    public function transactionHistory(): Response
+    {
+        /** @var \App\Security\User $user */
+        $user = $this->getUser();
+
+        if (!$user || !$user->getApiToken()) {
+            throw new AuthenticationException('Пользователь не авторизован.');
+        }
+
+        try {
+            $transactions = $this->billingClient->getTransactionHistory($user->getApiToken());
+        } catch (\Exception $e) {
+            return $this->render('error500.html.twig', [
+                'message' => 'Не удалось получить данные транзакций. Пожалуйста, попробуйте позже.',
+            ]);
+        }
+
+        return $this->render('profile/transaction_history.html.twig', [
+            'transactions' => $transactions,
         ]);
     }
 }

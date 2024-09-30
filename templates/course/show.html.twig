@@ -18,7 +18,6 @@
         {% endfor %}
     </ol>
 
-    
     <div class="d-flex justify-content-start">
         <a href="{{ path('course_index') }}" class="btn btn-outline-secondary me-2">К списку курсов</a>
         {% if is_granted('ROLE_SUPER_ADMIN') %}
@@ -27,5 +26,74 @@
             {{ include('course/_delete_form.html.twig') }}
         {% endif %}
     </div>
+
+    {% if course.price > 0 %}
+        {% if is_granted('ROLE_USER') %}
+            {% if not hasAccess %}
+                <div class="mt-4">
+                    {% if course.getTypeName() == 'rent' %}
+                        <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#rentModal" {% if insufficientFunds %}disabled{% endif %}>
+                            Арендовать
+                        </button>
+                    {% elseif course.getTypeName() == 'buy' %}
+                        <button type="button" class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#buyModal" {% if insufficientFunds %}disabled{% endif %}>
+                            Купить
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="{{ path('course_pay', {'code': course.code}) }}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rentModalLabel">Подтвердите аренду</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        Вы уверены, что хотите арендовать этот курс за {{ course.price }} рублей?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        {% if insufficientFunds %}
+                            <button type="button" class="btn btn-primary" disabled>Недостаточно средств</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary">Подтвердить</button>
+                        {% endif %}
+                    </div>
+                    <input type="hidden" name="type" value="rent">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="{{ path('course_pay', {'code': course.code}) }}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="buyModalLabel">Подтвердите покупку</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        Вы уверены, что хотите купить этот курс за {{ course.price }} рублей?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        {% if insufficientFunds %}
+                            <button type="button" class="btn btn-success" disabled>Недостаточно средств</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success">Подтвердить</button>
+                        {% endif %}
+                    </div>
+                    <input type="hidden" name="type" value="buy">
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

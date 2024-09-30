@@ -9,7 +9,8 @@
         {% endblock %}  
 
         {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
         {% endblock %}
     </head>
     <body>
@@ -19,7 +20,6 @@
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ms-auto">
                         {% if is_granted('ROLE_USER') %}
-                            <!-- Для авторизованных пользователей -->
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('profile') }}">Профиль</a>
                             </li>
@@ -27,7 +27,6 @@
                                 <a class="nav-link" href="{{ path('app_logout') }}">Выйти</a>
                             </li>
                         {% else %}
-                            <!-- Для неавторизованных пользователей -->
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login') }}">Войти</a>
                             </li>

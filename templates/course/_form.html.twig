@@ -13,5 +13,18 @@
             'label_attr': {'class': 'fw-semibold mb-1'}
         }) }}
     </div>
+    <div class="mb-3">
+        {{ form_row(form.price, {
+            'label': 'Цена', 
+            'attr': {'class': 'form-control'}, 
+            'label_attr': {'class': 'fw-semibold mb-1'}
+        }) }}
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.type, {
+            'attr': {'class': 'form-control'}, 
+            'label_attr': {'class': 'fw-semibold mb-1'}
+        }) }}
+    </div>
     <button type="submit" class="btn btn-primary">Сохранить</button>
 {{ form_end(form) }}

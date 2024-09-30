@@ -3,15 +3,13 @@
 {% block title %}Профиль{% endblock %}
 
 {% block body %}
-    <h1>Профиль пользователя</h1>
+    <div class="container mt-4">
+        <h1>Профиль пользователя</h1>
 
-    <p><strong>Email:</strong> {{ email }}</p>
-    <p><strong>Роль:</strong> 
-        {% if 'ROLE_SUPER_ADMIN' in roles %}
-            Администратор
-        {% else %}
-            Пользователь
-        {% endif %}
-    </p>
-    <p><strong>Баланс:</strong> {{ balance }} RUB</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Роль:</strong> {{ roles|join(', ') }}</p>
+        <p><strong>Баланс:</strong> {{ balance }} RUB
+            <a href="{{ path('profile_transactions') }}" class="btn btn-link ms-2">История транзакций</a>
+        </p>
+    </div>
 {% endblock %}

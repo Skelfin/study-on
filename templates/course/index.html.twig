@@ -10,10 +10,33 @@
         {% for course in courses %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                    <div class="card-body">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ course.name }}</h5>
                         <p class="card-text">{{ course.description }}</p>
-                        <a href="{{ path('course_show', {'id': course.id}) }}" class="btn btn-outline-primary">Пройти</a>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <a href="{{ path('course_show', {'id': course.id}) }}" class="btn btn-outline-primary">Пройти</a>
+                            {% if is_granted('ROLE_USER') %}
+                                {% set courseAccess = purchasedCourses[course.code]|default(null) %}
+
+                                {% if courseAccess %}
+                                    {% if courseAccess.expires_at is defined and courseAccess.expires_at %}
+                                        {% set expiresAt = courseAccess.expires_at|date('Y-m-d H:i:s') %}
+                                        {% if expiresAt > "now"|date('Y-m-d H:i:s') %}
+                                            <span class="badge bg-warning fs-6">Арендовано до {{ courseAccess.expires_at|date('Y-m-d') }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-success fs-6">Куплено</span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if course.price == 0 or course.price == 0.00 %}
+                                        <span class="badge bg-secondary fs-6">Бесплатно</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary fs-6">Цена: {{ course.price }} руб.</span>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

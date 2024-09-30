@@ -25,8 +25,8 @@ class Lesson
     #[Assert\NotBlank(message: "Содержимое не должно быть пустым.")]
     private ?string $content = null;
 
-    #[ORM\Column(type: 'integer', options: ["unsigned" => true, "check" => "position >= 1 AND position <= 10000"])]
-    private ?int $position = null;
+    #[ORM\Column(type: 'integer', options: ["unsigned" => true, "check" => "lessonOrder >= 1 AND lessonOrder <= 10000"])]
+    private ?int $lessonOrder = null;
 
     public function getId(): ?int
     {
@@ -69,17 +69,17 @@ class Lesson
         return $this;
     }
 
-    public function getPosition(): ?int
+    public function getLessonOrder(): int
     {
-        return $this->position;
+        return $this->lessonOrder;
     }
 
-    public function setPosition(int $position): static
+    public function setLessonOrder(int $lessonOrder): static
     {
-        if ($position < 1 || $position > 10000) {
+        if ($lessonOrder < 1 || $lessonOrder > 10000) {
             throw new \InvalidArgumentException('Место должно быть от 1 до 10000.');
         }
-        $this->position = $position;
+        $this->lessonOrder = $lessonOrder;
 
         return $this;
     }

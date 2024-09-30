@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}История транзакций{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>История транзакций</h1>
+
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-light">
+                    <th scope="col">Дата</th>
+                    <th scope="col">Описание</th>
+                    <th scope="col">Сумма</th>
+                    <th scope="col">Дополнительно</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr class="
+                        {% if transaction.type == 'deposit' %}
+                            table-success
+                        {% elseif transaction.expires_at is defined and transaction.expires_at %}
+                            table-warning
+                        {% elseif transaction.type == 'payment' %}
+                            table-danger
+                        {% else %}
+                            table-light
+                        {% endif %}
+                    ">
+                        <td>{{ transaction.created_at|date('Y-m-d H:i:s') }}</td>
+                        <td>
+                            {% if transaction.type == 'deposit' %}
+                                Пополнение баланса
+                            {% elseif transaction.expires_at is defined and transaction.expires_at %}
+                                Аренда курса {{ transaction.course_code }}
+                                <a href="{{ path('course_show', {'id': transaction.course_code}) }}">Перейти</a>
+                            {% elseif transaction.type == 'payment' %}
+                                Покупка курса {{ transaction.course_code }}
+                                <a href="{{ path('course_show', {'id': transaction.course_code}) }}">Перейти</a>
+                            {% else %}
+                                {{ transaction.type }}
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.amount }}</td>
+                        <td>
+                            {% if transaction.expires_at is defined and transaction.expires_at %}
+                                Действительно до {{ transaction.expires_at|date('Y-m-d H:i:s') }}
+                            {% else %}
+                                ---
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Транзакции не найдены.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
