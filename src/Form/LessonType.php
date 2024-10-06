@@ -26,7 +26,7 @@ class LessonType extends AbstractType
         $builder
             ->add('name')
             ->add('content')
-            ->add('position')
+            ->add('lessonOrder')
             ->add('course', HiddenType::class)
         ;
 

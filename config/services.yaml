@@ -1,11 +1,9 @@
 services:
   # default configuration for services in *this* file
   _defaults:
-    autowire: true # Automatically injects dependencies in your services.
-    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    autowire: true
+    autoconfigure: true
 
-  # makes classes in src/ available to be used as services
-  # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: "../src/"
     exclude:
@@ -13,10 +11,31 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
+  # Конфигурация для HttpClient
+  App\Service\HttpClient:
+    arguments: []
+
+  # Конфигурация для UserBillingClient
+  App\Service\UserBillingClient:
+    arguments:
+      $billingUrl: "%env(BILLING_URL)%"
+      $httpClient: '@App\Service\HttpClient'
+
+  # Конфигурация для CourseBillingClient
+  App\Service\CourseBillingClient:
+    arguments:
+      $billingUrl: "%env(BILLING_URL)%"
+      $httpClient: '@App\Service\HttpClient'
+
+  # Конфигурация для TransactionBillingClient
+  App\Service\TransactionBillingClient:
+    arguments:
+      $billingUrl: "%env(BILLING_URL)%"
+      $httpClient: '@App\Service\HttpClient'
+
   # Конфигурация для BillingClient
   App\Service\BillingClient:
     arguments:
-      $billingUrl: "%env(BILLING_URL)%"
-
-  # add more service definitions when explicit configuration is needed
-  # please note that last definitions always *replace* previous ones
+      $userBillingClient: '@App\Service\UserBillingClient'
+      $courseBillingClient: '@App\Service\CourseBillingClient'
+      $transactionBillingClient: '@App\Service\TransactionBillingClient'

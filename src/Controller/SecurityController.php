@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Form\RegistrationFormType;
 use App\Security\BillingAuthenticator;
-use App\Security\User; // Импортируем класс User
+use App\Security\User;
 use App\Service\BillingClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,12 +15,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private BillingClient $billingClient; // Объявляем свойство
+    private BillingClient $billingClient;
 
-    // Инициализируем BillingClient через конструктор
     public function __construct(BillingClient $billingClient)
     {
-        $this->billingClient = $billingClient; // Инициализируем свойство
+        $this->billingClient = $billingClient;
     }
 
     #[Route(path: '/login', name: 'app_login')]
@@ -30,9 +29,7 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('profile');
         }
 
-        // получить ошибку входа, если она есть
         $error = $authenticationUtils->getLastAuthenticationError();
-        // последний введенный пользователем email
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
@@ -58,14 +55,12 @@ class SecurityController extends AbstractController
             $data = $form->getData();
 
             try {
-                // Выполняем запрос на регистрацию через API биллинга
                 $responseData = $this->billingClient->registerUserInBilling($data['email'], $data['password']);
 
-                // Создаем локального пользователя, используя класс User
                 $user = new User();
                 $user->setEmail($data['email']);
-                $user->setRoles(['ROLE_USER']); // Назначаем роль пользователя
-                $user->setApiToken($responseData['token']); // Сохраняем токен
+                $user->setRoles(['ROLE_USER']);
+                $user->setApiToken($responseData['token']);
 
                 if (isset($responseData['refresh_token'])) {
                     $user->setRefreshToken($responseData['refresh_token']);
@@ -74,7 +69,6 @@ class SecurityController extends AbstractController
                     return $this->redirectToRoute('app_register');
                 }
 
-                // Авторизуем пользователя
                 $authenticator->authenticateUser(
                     $user,
                     $billingAuthenticator,

@@ -26,7 +26,6 @@ class CourseController extends AbstractController
     public function index(EntityManagerInterface $entityManager): Response
     {
         $courses = $entityManager->getRepository(Course::class)->findAll();
-
         /** @var \App\Security\User $user */
         $user = $this->getUser();
         $purchasedCourses = [];
@@ -34,40 +33,17 @@ class CourseController extends AbstractController
 
         if ($user && $user->getApiToken()) {
             try {
-                $transactions = $this->billingClient->getTransactionHistory($user->getApiToken());
-
-                foreach ($transactions as $transaction) {
-                    if ($transaction['type'] === 'payment' && isset($transaction['course_code'])) {
-                        $courseCode = $transaction['course_code'];
-
-                        if (isset($purchasedCourses[$courseCode])) {
-                            if (isset($transaction['expires_at'])) {
-                                $currentExpiresAt = new \DateTime($purchasedCourses[$courseCode]['expires_at']);
-                                $newExpiresAt = new \DateTime($transaction['expires_at']);
-                                if ($newExpiresAt > $currentExpiresAt) {
-                                    $purchasedCourses[$courseCode]['expires_at'] = $transaction['expires_at'];
-                                }
-                            }
-                        } else {
-                            $purchasedCourses[$courseCode] = [
-                                'type' => $transaction['type'],
-                                'expires_at' => $transaction['expires_at'] ?? null,
-                            ];
-                        }
-                    }
-                }
-
-                $currentUser = $this->billingClient->getCurrentUser($user->getApiToken());
-                $userBalance = $currentUser['balance'];
+                $purchasedCourses = $this->getPurchasedCourses($user->getApiToken());
+                $userBalance = $this->billingClient->getCurrentUser($user->getApiToken())['balance'];
             } catch (\Exception $e) {
                 $this->addFlash('danger', 'Не удалось получить данные о покупках.');
             }
         }
 
         return $this->render('course/index.html.twig', [
-            'courses' => $courses,
+            'courses'          => $courses,
             'purchasedCourses' => $purchasedCourses,
-            'userBalance' => $userBalance,
+            'userBalance'      => $userBalance,
         ]);
     }
 
@@ -75,7 +51,6 @@ class CourseController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $course = new Course();
-
         $course->setCode('temp_value');
 
         $form = $this->createForm(CourseType::class, $course);
@@ -93,7 +68,6 @@ class CourseController extends AbstractController
 
             try {
                 $this->billingClient->createCourseInBilling($course, $user->getApiToken());
-
                 $this->addFlash('success', 'Курс успешно создан и добавлен в биллинг.');
             } catch (\Exception $e) {
                 $entityManager->remove($course);
@@ -103,40 +77,28 @@ class CourseController extends AbstractController
                 return $this->redirectToRoute('course_new');
             }
 
-            return $this->redirectToRoute('course_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('course_index');
         }
 
         return $this->render('course/new.html.twig', [
             'course' => $course,
-            'form' => $form,
+            'form'   => $form,
         ]);
     }
-
-
-
 
     #[Route('/{id}', name: 'course_show', methods: ['GET'])]
     public function show(Course $course): Response
     {
         /** @var \App\Security\User $user */
         $user = $this->getUser();
-
         $hasAccess = false;
         $insufficientFunds = false;
 
         if ($user && $user->getApiToken()) {
             try {
-                $transactions = $this->billingClient->getTransactionHistory($user->getApiToken());
-
-                foreach ($transactions as $transaction) {
-                    if ($transaction['type'] === 'payment' && $transaction['course_code'] === $course->getCode()) {
-                        $hasAccess = true;
-                        break;
-                    }
-                }
-
-                $currentUser = $this->billingClient->getCurrentUser($user->getApiToken());
-                $userBalance = $currentUser['balance'];
+                $purchasedCourses = $this->getPurchasedCourses($user->getApiToken());
+                $hasAccess = array_key_exists($course->getCode(), $purchasedCourses);
+                $userBalance = $this->billingClient->getCurrentUser($user->getApiToken())['balance'];
 
                 if ($userBalance < $course->getPrice()) {
                     $insufficientFunds = true;
@@ -147,8 +109,8 @@ class CourseController extends AbstractController
         }
 
         return $this->render('course/show.html.twig', [
-            'course' => $course,
-            'hasAccess' => $hasAccess,
+            'course'           => $course,
+            'hasAccess'        => $hasAccess,
             'insufficientFunds' => $insufficientFunds,
         ]);
     }
@@ -163,9 +125,8 @@ class CourseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
             try {
+                $entityManager->flush();
                 $this->billingClient->updateCourseInBilling($course, $user->getApiToken());
 
                 $this->addFlash('success', 'Курс успешно обновлён и изменения отправлены в биллинг.');
@@ -174,15 +135,14 @@ class CourseController extends AbstractController
                 return $this->redirectToRoute('course_edit', ['id' => $course->getId()]);
             }
 
-            return $this->redirectToRoute('course_show', ['id' => $course->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
         }
 
         return $this->render('course/edit.html.twig', [
             'course' => $course,
-            'form' => $form,
+            'form'   => $form,
         ]);
     }
-
 
     #[Route('/{id}', name: 'course_delete', methods: ['POST'])]
     public function delete(Request $request, Course $course, EntityManagerInterface $entityManager): Response
@@ -193,7 +153,6 @@ class CourseController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $course->getId(), $request->request->get('_token'))) {
             try {
                 $this->billingClient->deleteCourseInBilling($course->getCode(), $user->getApiToken());
-
                 $entityManager->remove($course);
                 $entityManager->flush();
 
@@ -204,10 +163,9 @@ class CourseController extends AbstractController
             }
         } else {
             $this->addFlash('danger', 'Недействительный CSRF токен.');
-            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
         }
 
-        return $this->redirectToRoute('course_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('course_index');
     }
 
     #[Route('/pay/{code}', name: 'course_pay', methods: ['POST'])]
@@ -215,7 +173,6 @@ class CourseController extends AbstractController
     {
         /** @var \App\Security\User $user */
         $user = $this->getUser();
-
         $course = $entityManager->getRepository(Course::class)->findOneBy(['code' => $code]);
 
         if (!$course) {
@@ -230,18 +187,41 @@ class CourseController extends AbstractController
 
         try {
             $type = $request->request->get('type');
-
-            $response = $this->billingClient->payCourse($code, $user->getApiToken(), $type);
+            $this->billingClient->payCourse($code, $user->getApiToken(), $type);
 
             $this->addFlash('success', 'Курс успешно оплачен.');
-
-            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
         } catch (InsufficientFundsException $e) {
             $this->addFlash('danger', 'Недостаточно средств для оплаты курса.');
-            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
         } catch (\Exception $e) {
             $this->addFlash('danger', 'Не удалось приобрести курс: ' . $e->getMessage());
-            return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
         }
+
+        return $this->redirectToRoute('course_show', ['id' => $course->getId()]);
+    }
+
+    private function getPurchasedCourses(string $apiToken): array
+    {
+        $transactions = $this->billingClient->getTransactionHistory($apiToken);
+        $purchasedCourses = [];
+
+        foreach ($transactions as $transaction) {
+            if ($transaction['type'] === 'payment' && isset($transaction['course_code'])) {
+                $courseCode = $transaction['course_code'];
+                $expiresAt = $transaction['expires_at'] ?? null;
+
+                if (isset($purchasedCourses[$courseCode])) {
+                    if ($expiresAt && new \DateTime($expiresAt) > new \DateTime($purchasedCourses[$courseCode]['expires_at'] ?? 'now')) {
+                        $purchasedCourses[$courseCode]['expires_at'] = $expiresAt;
+                    }
+                } else {
+                    $purchasedCourses[$courseCode] = [
+                        'type'       => $transaction['type'],
+                        'expires_at' => $expiresAt,
+                    ];
+                }
+            }
+        }
+
+        return $purchasedCourses;
     }
 }

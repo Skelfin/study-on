@@ -25,7 +25,7 @@ class Lesson
     #[Assert\NotBlank(message: "Содержимое не должно быть пустым.")]
     private ?string $content = null;
 
-    #[ORM\Column(type: 'integer', options: ["unsigned" => true, "check" => "lessonOrder >= 1 AND lessonOrder <= 10000"])]
+    #[ORM\Column(type: 'integer', options: ["unsigned" => true])]
     private ?int $lessonOrder = null;
 
     public function getId(): ?int

@@ -18,7 +18,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private float $balance = 0.0;
 
-    private string $refreshToken; // Добавлено свойство refreshToken
+    private string $refreshToken;
 
     public function getEmail(): ?string
     {
@@ -50,7 +50,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // гарантируем, что каждый пользователь имеет хотя бы роль ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -69,23 +68,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials(): void
-    {
-        // Если вы храните какие-либо временные, чувствительные данные на пользователе, очистите их здесь
-        // $this->plainPassword = null;
-    }
+    public function eraseCredentials(): void {}
 
-    /**
-     * Получить API токен (JWT) пользователя.
-     */
     public function getApiToken(): ?string
     {
         return $this->apiToken;
     }
 
-    /**
-     * Установить API токен (JWT) для пользователя.
-     */
     public function setApiToken(string $apiToken): static
     {
         $this->apiToken = $apiToken;
@@ -97,13 +86,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return null;
     }
 
-    // Метод для возврата соли (если требуется, но в вашем случае не нужен)
     public function getSalt(): ?string
     {
         return null;
     }
 
-    // Метод для получения баланса
     public function getBalance(): float
     {
         return $this->balance;
@@ -111,23 +98,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setBalance(float $balance): static
     {
-        $this->balance = round($balance, 2); // Округляем баланс
+        $this->balance = round($balance, 2);
         return $this;
     }
 
-    // Добавляем методы для работы с refreshToken
-
-    /**
-     * Получить refresh token пользователя.
-     */
     public function getRefreshToken(): ?string
     {
         return $this->refreshToken;
     }
 
-    /**
-     * Установить refresh token пользователя.
-     */
     public function setRefreshToken(string $refreshToken): static
     {
         $this->refreshToken = $refreshToken;

@@ -27,6 +27,7 @@ services:
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pguser
+      POSTGRES_DB: study_on
 
   php:
     build: docker/images/php
@@ -37,23 +38,9 @@ services:
       - ${HOME}/.composer:/.composer
     environment:
       - COMPOSER_ALLOW_SUPERUSER=1
-      - APP_ENV=dev  # Добавьте эту строку
+      - APP_ENV=dev
     links:
       - postgres
-
-  database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    volumes:
-      - database_data:/var/lib/postgresql/data:rw
 
 networks:
   default:
